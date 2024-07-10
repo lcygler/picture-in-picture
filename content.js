@@ -1,6 +1,8 @@
 (function () {
   function enterPictureInPicture(video) {
-    video.removeAttribute("disablepictureinpicture");
+    if (video.hasAttribute("disablepictureinpicture")) {
+      video.removeAttribute("disablepictureinpicture");
+    }
 
     video.requestPictureInPicture()
       .then(() => {
