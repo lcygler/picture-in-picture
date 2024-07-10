@@ -1,4 +1,26 @@
 (function () {
+  function enterPictureInPicture(video) {
+    video.removeAttribute("disablepictureinpicture");
+
+    video.requestPictureInPicture()
+      .then(() => {
+        console.log("Entered Picture-in-Picture mode.");
+      })
+      .catch((error) => {
+        console.error("Failed to enter Picture-in-Picture mode:", error);
+      });
+  }
+
+  function exitPictureInPicture() {
+    document.exitPictureInPicture()
+      .then(() => {
+        console.log("Exited Picture-in-Picture mode.");
+      })
+      .catch((error) => {
+        console.error("Failed to exit Picture-in-Picture mode:", error);
+      });
+  }
+
   function togglePictureInPicture() {
     const video = document.querySelector("video");
 
@@ -8,20 +30,10 @@
     }
 
     if (document.pictureInPictureElement === video) {
-      console.log("Video is already in Picture-in-Picture mode.");
-      return;
+      exitPictureInPicture();
+    } else {
+      enterPictureInPicture(video);
     }
-
-    video.removeAttribute("disablepictureinpicture");
-
-    video
-      .requestPictureInPicture()
-      .then(() => {
-        console.log("Entered Picture-in-Picture mode successfully.");
-      })
-      .catch((error) => {
-        console.error("Failed to enter Picture-in-Picture mode:", error);
-      });
   }
 
   togglePictureInPicture();
