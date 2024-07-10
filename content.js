@@ -1,40 +1,35 @@
 (function () {
-  function enterPictureInPicture(video) {
-    if (video.hasAttribute("disablepictureinpicture")) {
-      video.removeAttribute("disablepictureinpicture");
-    }
-
-    video.requestPictureInPicture()
-      .then(() => {
-        console.log("Entered Picture-in-Picture mode.");
-      })
-      .catch((error) => {
-        console.error("Failed to enter Picture-in-Picture mode:", error);
-      });
+  function findRoots(element) {
+    const shadowRoots = [element, ...element.querySelectorAll("*")]
+      .filter((e) => !!e.shadowRoot)
+      .flatMap((e) => [e.shadowRoot, ...findRoots(e.shadowRoot)]);
+    return [...shadowRoots, document];
   }
 
-  function exitPictureInPicture() {
-    document.exitPictureInPicture()
-      .then(() => {
-        console.log("Exited Picture-in-Picture mode.");
-      })
-      .catch((error) => {
-        console.error("Failed to exit Picture-in-Picture mode:", error);
-      });
+  function findVideoElement() {
+    const roots = findRoots(document);
+    const videos = roots.flatMap((e) =>
+      Array.from(e.querySelectorAll("video")).filter((video) => video.readyState !== 0)
+    );
+
+    const largestVideo = videos.reduce((prev, current) => {
+      const prevArea = prev ? prev.clientWidth * prev.clientHeight : 0;
+      const currentArea = current.clientWidth * current.clientHeight;
+      return currentArea > prevArea ? current : prev;
+    }, null);
+
+    return largestVideo;
   }
 
   function togglePictureInPicture() {
-    const video = document.querySelector("video");
+    const video = findVideoElement();
+    if (!video) return;
 
-    if (!video) {
-      console.log("No video element found.");
-      return;
-    }
-
-    if (document.pictureInPictureElement === video) {
-      exitPictureInPicture();
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture();
     } else {
-      enterPictureInPicture(video);
+      video.removeAttribute("disablepictureinpicture");
+      video.requestPictureInPicture();
     }
   }
 
